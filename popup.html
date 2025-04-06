@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Bateu Ponto</title>
+  <style>
+    body {
+      width: 320px;
+      padding: 0;
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f8f9fa;
+      color: #333;
+    }
+    
+    .header {
+      background-color: #4285f4;
+      color: white;
+      padding: 15px;
+      text-align: center;
+      border-bottom: 1px solid #3367d6;
+    }
+    
+    .header h2 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 500;
+    }
+    
+    .container {
+      padding: 15px;
+    }
+    
+    .status-container {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+    
+    .status {
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 5px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      transition: all 0.3s ease;
+    }
+    
+    .pending {
+      background-color: #fff3cd;
+      color: #856404;
+      border-left: 4px solid #ffc107;
+    }
+    
+    .registered {
+      background-color: #d4edda;
+      color: #155724;
+      border-left: 4px solid #28a745;
+    }
+    
+    .out-of-time {
+      background-color: #f8f9fa;
+      color: #6c757d;
+      border-left: 4px solid #6c757d;
+    }
+    
+    .action-container {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    
+    button {
+      padding: 10px 16px;
+      background-color: #4285f4;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      transition: background-color 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    button:hover {
+      background-color: #3367d6;
+    }
+    
+    button:active {
+      background-color: #2a56c6;
+    }
+    
+    .config-link {
+      text-align: center;
+      margin-top: 10px;
+    }
+    
+    .config-link a {
+      color: #4285f4;
+      text-decoration: none;
+      font-size: 14px;
+      transition: color 0.3s ease;
+    }
+    
+    .config-link a:hover {
+      color: #3367d6;
+      text-decoration: underline;
+    }
+    
+    .status-icon {
+      margin-right: 8px;
+      font-size: 16px;
+    }
+    
+    .time {
+      font-size: 12px;
+      opacity: 0.8;
+      margin-top: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h2>Bateu Ponto</h2>
+  </div>
+  
+  <div class="container">
+    <div class="status-container">
+      <div id="arrivalStatus" class="status pending">
+        <div>Chegada: Pendente</div>
+        <div class="time" id="arrivalTime"></div>
+      </div>
+      <div id="lunchOutStatus" class="status pending">
+        <div>Saída para Almoço: Pendente</div>
+        <div class="time" id="lunchOutTime"></div>
+      </div>
+      <div id="lunchInStatus" class="status pending">
+        <div>Retorno do Almoço: Pendente</div>
+        <div class="time" id="lunchInTime"></div>
+      </div>
+      <div id="departureStatus" class="status pending">
+        <div>Saída: Pendente</div>
+        <div class="time" id="departureTime"></div>
+      </div>
+    </div>
+    
+    <div class="action-container">
+      <button id="registerPoint">Registrar Ponto</button>
+      <div class="config-link">
+        <a href="#" id="openOptions">Configurar Horários</a>
+      </div>
+    </div>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html> 
