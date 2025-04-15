@@ -1,5 +1,24 @@
-// Configurar alarme para verificar horários a cada minuto
-chrome.alarms.create('checkTime', { periodInMinutes: 1 });
+// Inicializar o alarme com o intervalo padrão ou personalizado
+chrome.storage.local.get(['notificationInterval'], function(result) {
+  const interval = result.notificationInterval || 5; // 5 minutos por padrão
+  createAlarm(interval);
+});
+
+// Função para criar ou atualizar o alarme
+function createAlarm(intervalMinutes) {
+  // Primeiro, remover o alarme existente, se houver
+  chrome.alarms.clear('checkTime', function() {
+    // Criar um novo alarme com o intervalo especificado
+    chrome.alarms.create('checkTime', { periodInMinutes: intervalMinutes });
+  });
+}
+
+// Listener para mensagens do options.js
+chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
+  if (message.action === 'updateAlarm' && message.interval) {
+    createAlarm(message.interval);
+  }
+});
 
 // Listener para o alarme
 chrome.alarms.onAlarm.addListener(function(alarm) {
@@ -116,7 +135,7 @@ function registerPoint(notificationId) {
       const timeString = now.toLocaleTimeString();
       const dateString = now.toLocaleDateString();
       
-      chrome.storage.local.get(['points'], function(result) {
+      chrome.storage.local.get(['points', 'tangerinoEnabled', 'tangerinoUrl', 'tangerinoCompanyCode', 'tangerinoPin'], function(result) {
         const points = result.points || [];
         points.push({
           date: dateString,
@@ -130,15 +149,53 @@ function registerPoint(notificationId) {
           chrome.notifications.clear(notificationId);
           chrome.storage.local.remove([`notification_${notificationId}`]);
           
-          // Mostrar confirmação
-          chrome.notifications.create({
-            type: 'basic',
-            iconUrl: 'images/icon128.png',
-            title: 'Bateu Ponto',
-            message: 'Ponto registrado com sucesso!'
-          });
+          // Verificar se a integração com Tangerino está ativada
+          if (result.tangerinoEnabled && result.tangerinoCompanyCode && result.tangerinoPin) {
+            registerPointInTangerino(result.tangerinoUrl, result.tangerinoCompanyCode, result.tangerinoPin, function(success) {
+              if (success) {
+                showConfirmationNotification('Ponto registrado com sucesso no sistema e no Tangerino!');
+              } else {
+                showConfirmationNotification('Ponto registrado no sistema, mas houve um erro ao registrar no Tangerino.');
+              }
+            });
+          } else {
+            // Mostrar confirmação normal
+            showConfirmationNotification('Ponto registrado com sucesso!');
+          }
         });
       });
     }
+  });
+}
+
+// Registrar ponto no Tangerino
+function registerPointInTangerino(baseUrl, companyCode, pin, callback) {
+  const url = `${baseUrl}${companyCode}/pin/${pin}`;
+  
+  // Fazer a requisição
+  fetch(url)
+    .then(response => {
+      if (response.ok) {
+        return response.text();
+      }
+      throw new Error('Erro na requisição para o Tangerino');
+    })
+    .then(data => {
+      console.log('Resposta do Tangerino:', data);
+      callback(true);
+    })
+    .catch(error => {
+      console.error('Erro ao registrar ponto no Tangerino:', error);
+      callback(false);
+    });
+}
+
+// Mostrar notificação de confirmação
+function showConfirmationNotification(message) {
+  chrome.notifications.create({
+    type: 'basic',
+    iconUrl: 'images/icon128.png',
+    title: 'Bateu Ponto',
+    message: message
   });
 } 

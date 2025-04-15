@@ -10,10 +10,12 @@ Uma extensão para Chrome que ajuda você a lembrar de registrar seus horários 
   - Retorno do almoço
   - Saída do trabalho
 - Configuração personalizada dos horários de trabalho
-- Interface simples e intuitiva
+- Interface simples e moderna
 - Notificações automáticas quando estiver no horário de registrar o ponto
 - Registro de ponto diretamente a partir das notificações
 - Armazenamento local dos registros de ponto
+- Intervalo de lembretes configurável
+- Integração com o sistema Tangerino
 
 ## Instalação
 
@@ -37,11 +39,22 @@ Uma extensão para Chrome que ajuda você a lembrar de registrar seus horários 
 1. Clique no ícone da extensão
 2. Clique em "Configurar Horários"
 3. Defina os intervalos de tempo para:
-   - Horário de Chegada (ex: 07:00 às 09:00)
+   - Horário de Chegada (ex: 08:00 às 09:00)
    - Saída para Almoço (ex: 12:00 às 13:00)
    - Retorno do Almoço (ex: 13:00 às 14:00)
    - Horário de Saída (ex: 17:00 às 18:00)
+4. Configure o intervalo de lembretes (em minutos)
+5. Clique em "Salvar Configurações"
+
+## Configuração da Integração com Tangerino
+
+1. Acesse a página de configurações
+2. Ative a opção "Ativar integração com Tangerino"
+3. Preencha:
+   - Código da Empresa (ex: U6WR4)
+   - PIN do Usuário (ex: 10352)
 4. Clique em "Salvar Configurações"
+5. Agora, ao registrar um ponto, ele também será enviado automaticamente para o Tangerino
 
 ## Desenvolvimento
 

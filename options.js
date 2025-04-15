@@ -1,11 +1,30 @@
 document.addEventListener('DOMContentLoaded', () => {
+  // Elementos DOM
+  const tangerinoEnabledToggle = document.getElementById('tangerinoEnabled');
+  const tangerinoFields = document.getElementById('tangerinoFields');
+  
+  // Toggle para mostrar/esconder campos de integração
+  tangerinoEnabledToggle.addEventListener('change', function() {
+    if (this.checked) {
+      tangerinoFields.classList.add('active');
+    } else {
+      tangerinoFields.classList.remove('active');
+    }
+  });
+
   // Carregar configurações salvas
   chrome.storage.local.get([
     'arrivalStart', 'arrivalEnd',
     'lunchOutStart', 'lunchOutEnd',
     'lunchInStart', 'lunchInEnd',
-    'departureStart', 'departureEnd'
+    'departureStart', 'departureEnd',
+    'notificationInterval',
+    'tangerinoEnabled',
+    'tangerinoUrl',
+    'tangerinoCompanyCode',
+    'tangerinoPin'
   ], (result) => {
+    // Horários padrão
     document.getElementById('arrivalStart').value = result.arrivalStart || '08:00';
     document.getElementById('arrivalEnd').value = result.arrivalEnd || '09:00';
     document.getElementById('lunchOutStart').value = result.lunchOutStart || '12:00';
@@ -14,6 +33,19 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('lunchInEnd').value = result.lunchInEnd || '14:00';
     document.getElementById('departureStart').value = result.departureStart || '17:00';
     document.getElementById('departureEnd').value = result.departureEnd || '18:00';
+    
+    // Intervalo de notificação
+    document.getElementById('notificationInterval').value = result.notificationInterval || 5;
+    
+    // Configurações Tangerino
+    if (result.tangerinoEnabled) {
+      document.getElementById('tangerinoEnabled').checked = true;
+      tangerinoFields.classList.add('active');
+    }
+    
+    document.getElementById('tangerinoUrl').value = result.tangerinoUrl || 'https://app.tangerino.com.br/Tangerino/ws/fingerprintWS/funcionario/empregador/';
+    document.getElementById('tangerinoCompanyCode').value = result.tangerinoCompanyCode || '';
+    document.getElementById('tangerinoPin').value = result.tangerinoPin || '';
   });
 
   // Função para validar os horários
@@ -59,6 +91,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
     return true;
   }
+  
+  // Validar configurações do Tangerino
+  function validateTangerinoSettings() {
+    const tangerinoEnabled = document.getElementById('tangerinoEnabled').checked;
+    
+    if (!tangerinoEnabled) {
+      return true; // Se não estiver habilitado, não precisa validar
+    }
+    
+    const companyCode = document.getElementById('tangerinoCompanyCode').value.trim();
+    const pin = document.getElementById('tangerinoPin').value.trim();
+    
+    if (!companyCode || !pin) {
+      return false;
+    }
+    
+    return true;
+  }
 
   // Função para mostrar mensagem de status
   function showStatus(message, isError = false) {
@@ -79,8 +129,20 @@ document.addEventListener('DOMContentLoaded', () => {
       showStatus('Por favor, verifique se os horários estão em ordem cronológica e se os intervalos são válidos.', true);
       return;
     }
+    
+    if (!validateTangerinoSettings()) {
+      showStatus('Por favor, preencha todos os campos da integração com o Tangerino ou desative a integração.', true);
+      return;
+    }
+    
+    const notificationInterval = document.getElementById('notificationInterval').value;
+    if (notificationInterval < 1 || notificationInterval > 60) {
+      showStatus('O intervalo de notificações deve estar entre 1 e 60 minutos.', true);
+      return;
+    }
 
     const settings = {
+      // Horários
       arrivalStart: document.getElementById('arrivalStart').value,
       arrivalEnd: document.getElementById('arrivalEnd').value,
       lunchOutStart: document.getElementById('lunchOutStart').value,
@@ -88,7 +150,16 @@ document.addEventListener('DOMContentLoaded', () => {
       lunchInStart: document.getElementById('lunchInStart').value,
       lunchInEnd: document.getElementById('lunchInEnd').value,
       departureStart: document.getElementById('departureStart').value,
-      departureEnd: document.getElementById('departureEnd').value
+      departureEnd: document.getElementById('departureEnd').value,
+      
+      // Intervalo de notificação
+      notificationInterval: parseInt(notificationInterval, 10),
+      
+      // Configurações Tangerino
+      tangerinoEnabled: document.getElementById('tangerinoEnabled').checked,
+      tangerinoUrl: document.getElementById('tangerinoUrl').value,
+      tangerinoCompanyCode: document.getElementById('tangerinoCompanyCode').value,
+      tangerinoPin: document.getElementById('tangerinoPin').value
     };
 
     chrome.storage.local.set(settings, () => {
@@ -105,6 +176,9 @@ document.addEventListener('DOMContentLoaded', () => {
       }, 2000);
 
       showStatus('Configurações salvas com sucesso!');
+      
+      // Recriar alarme com novo intervalo
+      chrome.runtime.sendMessage({ action: 'updateAlarm', interval: parseInt(notificationInterval, 10) });
     });
   });
 

@@ -8,6 +8,9 @@
     "alarms",
     "notifications"
   ],
+  "host_permissions": [
+    "https://app.tangerino.com.br/*"
+  ],
   "action": {
     "default_popup": "popup.html",
     "default_icon": {

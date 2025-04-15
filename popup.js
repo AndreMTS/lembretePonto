@@ -16,7 +16,8 @@ document.addEventListener('DOMContentLoaded', function() {
       'arrivalStart', 'arrivalEnd',
       'lunchOutStart', 'lunchOutEnd',
       'lunchInStart', 'lunchInEnd',
-      'departureStart', 'departureEnd'
+      'departureStart', 'departureEnd',
+      'tangerinoEnabled', 'tangerinoUrl', 'tangerinoCompanyCode', 'tangerinoPin'
     ], function(result) {
       // Usar valores padrão se não estiverem definidos
       const timeRanges = {
@@ -66,7 +67,6 @@ document.addEventListener('DOMContentLoaded', function() {
         
         chrome.storage.local.set({ points: points }, function() {
           updateStatus();
-          showNotification('Ponto registrado com sucesso!');
           
           // Efeito visual de confirmação
           registerButton.textContent = 'Registrado!';
@@ -76,6 +76,19 @@ document.addEventListener('DOMContentLoaded', function() {
             registerButton.textContent = 'Registrar Ponto';
             registerButton.style.backgroundColor = '#4285f4';
           }, 2000);
+          
+          // Verificar se a integração com Tangerino está ativada
+          if (result.tangerinoEnabled && result.tangerinoCompanyCode && result.tangerinoPin) {
+            registerPointInTangerino(result.tangerinoUrl, result.tangerinoCompanyCode, result.tangerinoPin, function(success) {
+              if (success) {
+                showNotification('Ponto registrado com sucesso no sistema e no Tangerino!');
+              } else {
+                showNotification('Ponto registrado no sistema, mas houve um erro ao registrar no Tangerino.');
+              }
+            });
+          } else {
+            showNotification('Ponto registrado com sucesso!');
+          }
         });
       });
     });
@@ -182,6 +195,28 @@ document.addEventListener('DOMContentLoaded', function() {
       departure: 'Saída'
     };
     return names[period];
+  }
+  
+  // Registrar ponto no Tangerino
+  function registerPointInTangerino(baseUrl, companyCode, pin, callback) {
+    const url = `${baseUrl}${companyCode}/pin/${pin}`;
+    
+    // Fazer a requisição
+    fetch(url)
+      .then(response => {
+        if (response.ok) {
+          return response.text();
+        }
+        throw new Error('Erro na requisição para o Tangerino');
+      })
+      .then(data => {
+        console.log('Resposta do Tangerino:', data);
+        callback(true);
+      })
+      .catch(error => {
+        console.error('Erro ao registrar ponto no Tangerino:', error);
+        callback(false);
+      });
   }
   
   function showNotification(message) {
