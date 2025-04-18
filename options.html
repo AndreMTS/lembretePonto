@@ -303,10 +303,10 @@
       </div>
     </div>
     
-    <div class="section-title">Integração com Tangerino</div>
+    <div class="section-title">Integração com Sistema Local</div>
     <div class="integration-settings">
       <div class="setting-row">
-        <div class="setting-label">Ativar integração com Tangerino:</div>
+        <div class="setting-label">Ativar integração:</div>
         <div class="setting-input">
           <label class="toggle-container">
             <input type="checkbox" id="tangerinoEnabled" class="toggle-input">
@@ -317,23 +317,23 @@
       
       <div id="tangerinoFields" class="integration-fields">
         <div class="setting-row">
-          <div class="setting-label">URL do Tangerino:</div>
+          <div class="setting-label">URL da API:</div>
           <div class="setting-input">
-            <input type="text" id="tangerinoUrl" value="https://app.tangerino.com.br/Tangerino/ws/fingerprintWS/funcionario/empregador/" placeholder="URL da API">
+            <input type="text" id="tangerinoUrl" value="http://localhost:9999/v1/registrar-ponto" placeholder="Ex: http://localhost:9999/v1/registrar-ponto">
           </div>
         </div>
         
         <div class="setting-row">
-          <div class="setting-label">Código da Empresa:</div>
+          <div class="setting-label">Código do Empregador:</div>
           <div class="setting-input">
-            <input type="text" id="tangerinoCompanyCode" placeholder="Ex: U6WR4">
+            <input type="text" id="tangerinoCompanyCode" placeholder="Ex: 55555">
           </div>
         </div>
         
         <div class="setting-row">
           <div class="setting-label">PIN do Usuário:</div>
           <div class="setting-input">
-            <input type="text" id="tangerinoPin" placeholder="Ex: 10352">
+            <input type="text" id="tangerinoPin" placeholder="Ex: 5555">
           </div>
         </div>
       </div>

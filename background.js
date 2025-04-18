@@ -151,11 +151,11 @@ function registerPoint(notificationId) {
           
           // Verificar se a integração com Tangerino está ativada
           if (result.tangerinoEnabled && result.tangerinoCompanyCode && result.tangerinoPin) {
-            registerPointInTangerino(result.tangerinoUrl, result.tangerinoCompanyCode, result.tangerinoPin, function(success) {
+            registerPointInTangerino(result.tangerinoCompanyCode, result.tangerinoPin, function(success) {
               if (success) {
-                showConfirmationNotification('Ponto registrado com sucesso no sistema e no Tangerino!');
+                showConfirmationNotification('Ponto registrado com sucesso no sistema e na API local!');
               } else {
-                showConfirmationNotification('Ponto registrado no sistema, mas houve um erro ao registrar no Tangerino.');
+                showConfirmationNotification('Ponto registrado no sistema, mas houve um erro ao registrar na API local.');
               }
             });
           } else {
@@ -168,26 +168,39 @@ function registerPoint(notificationId) {
   });
 }
 
-// Registrar ponto no Tangerino
-function registerPointInTangerino(baseUrl, companyCode, pin, callback) {
-  const url = `${baseUrl}${companyCode}/pin/${pin}`;
-  
-  // Fazer a requisição
-  fetch(url)
-    .then(response => {
-      if (response.ok) {
-        return response.text();
-      }
-      throw new Error('Erro na requisição para o Tangerino');
+// Registrar ponto na API local
+function registerPointInTangerino(companyCode, pin, callback) {
+  // Primeiro, vamos obter a URL configurada
+  debugger
+  chrome.storage.local.get(['tangerinoUrl'], function(result) {
+    const url = result.tangerinoUrl || 'http://localhost:9999/v1/registrar-ponto';
+    
+    // Fazer a requisição POST
+    fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        employerCode: companyCode,
+        pin: pin
+      })
     })
-    .then(data => {
-      console.log('Resposta do Tangerino:', data);
-      callback(true);
-    })
-    .catch(error => {
-      console.error('Erro ao registrar ponto no Tangerino:', error);
-      callback(false);
-    });
+      .then(response => {
+        if (response.ok) {
+          return response.text();
+        }
+        throw new Error('Erro na requisição para a API local');
+      })
+      .then(data => {
+        console.log('Resposta da API:', data);
+        callback(true);
+      })
+      .catch(error => {
+        console.error('Erro ao registrar ponto:', error);
+        callback(false);
+      });
+  });
 }
 
 // Mostrar notificação de confirmação

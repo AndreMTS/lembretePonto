@@ -1,87 +1,81 @@
-# Bateu Ponto - Extensão Chrome
+Bateu Ponto - Extensão Chrome
+Extensão para gerenciamento de registros de ponto com lembretes automáticos, que funciona em conjunto com uma aplicação Electron backend.
 
-Uma extensão para Chrome que ajuda você a lembrar de registrar seus horários de trabalho.
+⚠️ Pré-requisitos
+Para que esta extensão funcione corretamente, é necessário:
 
-## Funcionalidades
+Ter instalada a aplicação Electron companion que faz o registro real do ponto
 
-- Lembretes para registrar os 4 pontos do dia:
-  - Chegada ao trabalho
-  - Saída para almoço
-  - Retorno do almoço
-  - Saída do trabalho
-- Configuração personalizada dos horários de trabalho
-- Interface simples e moderna
-- Notificações automáticas quando estiver no horário de registrar o ponto
-- Registro de ponto diretamente a partir das notificações
-- Armazenamento local dos registros de ponto
-- Intervalo de lembretes configurável
-- Integração com o sistema Tangerino
+A aplicação Electron deve estar em execução localmente
 
-## Instalação
+Configurar a mesma porta em ambas as aplicações
 
-1. Clone este repositório ou baixe os arquivos
-2. Abra o Chrome e vá para `chrome://extensions/`
-3. Ative o "Modo do desenvolvedor" no canto superior direito
-4. Clique em "Carregar sem compactação" e selecione a pasta do projeto
-5. A extensão será instalada e aparecerá na barra de ferramentas do Chrome
+🌟 Funcionalidades
+Sistema Híbrido
+🔌 Extensão Chrome como interface frontend
 
-## Como usar
+⚡ Aplicação Electron como backend (Node.js + Express + Puppeteer)
 
-1. Clique no ícone da extensão na barra de ferramentas do Chrome
-2. Configure seus horários de trabalho na página de configurações
-3. A extensão irá notificar você quando estiver no horário de registrar o ponto
-4. Você pode registrar o ponto de duas maneiras:
-   - Clicando no botão "Registrar Ponto" no popup da extensão
-   - Clicando no botão "Registrar Ponto" na notificação que aparece
+📡 Comunicação via API local
 
-## Configuração dos horários
+Registro de Pontos
+Monitoramento dos 4 períodos diários
 
-1. Clique no ícone da extensão
-2. Clique em "Configurar Horários"
-3. Defina os intervalos de tempo para:
-   - Horário de Chegada (ex: 08:00 às 09:00)
-   - Saída para Almoço (ex: 12:00 às 13:00)
-   - Retorno do Almoço (ex: 13:00 às 14:00)
-   - Horário de Saída (ex: 17:00 às 18:00)
-4. Configure o intervalo de lembretes (em minutos)
-5. Clique em "Salvar Configurações"
+Notificações automáticas configuráveis
 
-## Configuração da Integração com Tangerino
+Interface intuitiva
 
-1. Acesse a página de configurações
-2. Ative a opção "Ativar integração com Tangerino"
-3. Preencha:
-   - Código da Empresa (ex: U6WR4)
-   - PIN do Usuário (ex: 10352)
-4. Clique em "Salvar Configurações"
-5. Agora, ao registrar um ponto, ele também será enviado automaticamente para o Tangerino
+🚀 Instalação
+Instale primeiro a aplicação Electron
 
-## Desenvolvimento
+Clone este repositório:
 
-Para modificar a extensão:
+bash
+Copy
+git clone [URL_DO_REPOSITÓRIO_EXTENSÃO]
+Configure a mesma porta em ambas as aplicações
 
-1. Edite os arquivos conforme necessário
-2. Recarregue a extensão em `chrome://extensions/`
-3. Teste as alterações
+⚙️ Configuração da API Local
+Inicie a aplicação Electron
 
-## Estrutura do projeto
+Na extensão Chrome:
 
-- `manifest.json`: Configuração da extensão
-- `popup.html`: Interface principal
-- `popup.js`: Lógica da interface principal
-- `options.html`: Página de configurações
-- `options.js`: Lógica das configurações
-- `background.js`: Serviço em segundo plano
-- `images/`: Diretório com os ícones da extensão
+Acesse Configurações
 
-## Contribuindo
+Ative "Integração com Sistema Local"
 
-1. Faça um fork do projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/nova-feature`)
-3. Commit suas mudanças (`git commit -am 'Adiciona nova feature'`)
-4. Push para a branch (`git push origin feature/nova-feature`)
-5. Crie um Pull Request
+Informe:
 
-## Licença
+URL da API (ex: http://localhost:3000/registrar-ponto)
 
-Este projeto está licenciado sob a licença MIT - veja o arquivo LICENSE para detalhes. 
+Credenciais necessárias
+
+Salve as configurações
+
+🔧 Arquitetura do Sistema
+Copy
+Extensão Chrome (Frontend)
+       ↓
+   Comunicação HTTP
+       ↓
+Aplicação Electron (Backend)
+  ├── Node.js/Express
+  └── Puppeteer (automação)
+🤝 Contribuição
+Contribuições são bem-vindas para ambas as partes do sistema:
+
+Extensão Chrome
+
+Aplicação Electron
+
+Siga o padrão de:
+
+Fork
+
+Branch de feature
+
+Commit
+
+Pull Request
+
+Desenvolvido com ❤️ para facilitar seu registro de ponto

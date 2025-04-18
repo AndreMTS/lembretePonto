@@ -37,13 +37,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // Intervalo de notificação
     document.getElementById('notificationInterval').value = result.notificationInterval || 5;
     
-    // Configurações Tangerino
+    // Configurações da API
     if (result.tangerinoEnabled) {
       document.getElementById('tangerinoEnabled').checked = true;
       tangerinoFields.classList.add('active');
     }
     
-    document.getElementById('tangerinoUrl').value = result.tangerinoUrl || 'https://app.tangerino.com.br/Tangerino/ws/fingerprintWS/funcionario/empregador/';
+    document.getElementById('tangerinoUrl').value = result.tangerinoUrl || 'http://localhost:9999/v1/registrar-ponto';
     document.getElementById('tangerinoCompanyCode').value = result.tangerinoCompanyCode || '';
     document.getElementById('tangerinoPin').value = result.tangerinoPin || '';
   });
@@ -92,7 +92,17 @@ document.addEventListener('DOMContentLoaded', () => {
     return true;
   }
   
-  // Validar configurações do Tangerino
+  // Função para validar URL
+  function isValidUrl(string) {
+    try {
+      new URL(string);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+  
+  // Validar configurações da API
   function validateTangerinoSettings() {
     const tangerinoEnabled = document.getElementById('tangerinoEnabled').checked;
     
@@ -100,10 +110,11 @@ document.addEventListener('DOMContentLoaded', () => {
       return true; // Se não estiver habilitado, não precisa validar
     }
     
+    const apiUrl = document.getElementById('tangerinoUrl').value.trim();
     const companyCode = document.getElementById('tangerinoCompanyCode').value.trim();
     const pin = document.getElementById('tangerinoPin').value.trim();
     
-    if (!companyCode || !pin) {
+    if (!apiUrl || !isValidUrl(apiUrl) || !companyCode || !pin) {
       return false;
     }
     
@@ -131,7 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     if (!validateTangerinoSettings()) {
-      showStatus('Por favor, preencha todos os campos da integração com o Tangerino ou desative a integração.', true);
+      showStatus('Por favor, verifique se a URL da API é válida e se todos os campos da integração estão preenchidos corretamente.', true);
       return;
     }
     
@@ -155,11 +166,11 @@ document.addEventListener('DOMContentLoaded', () => {
       // Intervalo de notificação
       notificationInterval: parseInt(notificationInterval, 10),
       
-      // Configurações Tangerino
+      // Configurações da API
       tangerinoEnabled: document.getElementById('tangerinoEnabled').checked,
-      tangerinoUrl: document.getElementById('tangerinoUrl').value,
-      tangerinoCompanyCode: document.getElementById('tangerinoCompanyCode').value,
-      tangerinoPin: document.getElementById('tangerinoPin').value
+      tangerinoUrl: document.getElementById('tangerinoUrl').value.trim(),
+      tangerinoCompanyCode: document.getElementById('tangerinoCompanyCode').value.trim(),
+      tangerinoPin: document.getElementById('tangerinoPin').value.trim()
     };
 
     chrome.storage.local.set(settings, () => {

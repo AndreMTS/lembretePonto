@@ -9,7 +9,7 @@
     "notifications"
   ],
   "host_permissions": [
-    "https://app.tangerino.com.br/*"
+    "http://localhost:*/*"
   ],
   "action": {
     "default_popup": "popup.html",
