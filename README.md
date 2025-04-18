@@ -6,7 +6,7 @@ Extensão para gerenciamento de registros de ponto com lembretes automáticos, q
 
 Para que esta extensão funcione corretamente, é necessário:
 
-1.  Ter instalada a [aplicação Electron companion](https://xn--url_do_repositrio_electron-etc/) que faz o registro real do ponto
+1.  Ter instalada a [aplicação Electron companion](https://github.com/AndreMTS/apiResgistrarPonto) que faz o registro real do ponto pode ser gerado um arquivo portable
 2.  A aplicação Electron deve estar em execução localmente
 3.  Configurar a mesma porta em ambas as aplicações
 
