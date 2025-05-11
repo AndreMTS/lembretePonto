@@ -2,9 +2,19 @@ document.addEventListener('DOMContentLoaded', () => {
   // Elementos DOM
   const tangerinoEnabledToggle = document.getElementById('tangerinoEnabled');
   const tangerinoFields = document.getElementById('tangerinoFields');
-  
+  const apagarTodosPontos = document.getElementById('deleteAll');
+
+  apagarTodosPontos.addEventListener('click', function () {
+    chrome.storage.local.get(['points'], function (result) {
+        const points = [];
+        chrome.storage.local.set({ points: points }, function () {
+            window.location.reload();
+        });
+    });
+});
+
   // Toggle para mostrar/esconder campos de integração
-  tangerinoEnabledToggle.addEventListener('change', function() {
+  tangerinoEnabledToggle.addEventListener('change', function () {
     if (this.checked) {
       tangerinoFields.classList.add('active');
     } else {
@@ -33,16 +43,16 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('lunchInEnd').value = result.lunchInEnd || '14:00';
     document.getElementById('departureStart').value = result.departureStart || '17:00';
     document.getElementById('departureEnd').value = result.departureEnd || '18:00';
-    
+
     // Intervalo de notificação
     document.getElementById('notificationInterval').value = result.notificationInterval || 5;
-    
+
     // Configurações da API
     if (result.tangerinoEnabled) {
       document.getElementById('tangerinoEnabled').checked = true;
       tangerinoFields.classList.add('active');
     }
-    
+
     document.getElementById('tangerinoUrl').value = result.tangerinoUrl || 'http://localhost:9999/v1/registrar-ponto';
     document.getElementById('tangerinoCompanyCode').value = result.tangerinoCompanyCode || '';
     document.getElementById('tangerinoPin').value = result.tangerinoPin || '';
@@ -84,14 +94,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Validar sequência dos períodos
     if (toMinutes(times.arrival.end) > toMinutes(times.lunchOut.start) ||
-        toMinutes(times.lunchOut.end) > toMinutes(times.lunchIn.start) ||
-        toMinutes(times.lunchIn.end) > toMinutes(times.departure.start)) {
+      toMinutes(times.lunchOut.end) > toMinutes(times.lunchIn.start) ||
+      toMinutes(times.lunchIn.end) > toMinutes(times.departure.start)) {
       return false;
     }
 
     return true;
   }
-  
+
   // Função para validar URL
   function isValidUrl(string) {
     try {
@@ -101,23 +111,23 @@ document.addEventListener('DOMContentLoaded', () => {
       return false;
     }
   }
-  
+
   // Validar configurações da API
   function validateTangerinoSettings() {
     const tangerinoEnabled = document.getElementById('tangerinoEnabled').checked;
-    
+
     if (!tangerinoEnabled) {
       return true; // Se não estiver habilitado, não precisa validar
     }
-    
+
     const apiUrl = document.getElementById('tangerinoUrl').value.trim();
     const companyCode = document.getElementById('tangerinoCompanyCode').value.trim();
     const pin = document.getElementById('tangerinoPin').value.trim();
-    
+
     if (!apiUrl || !isValidUrl(apiUrl) || !companyCode || !pin) {
       return false;
     }
-    
+
     return true;
   }
 
@@ -127,7 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
     statusElement.textContent = message;
     statusElement.className = `status ${isError ? 'error' : 'success'}`;
     statusElement.style.display = 'block';
-    
+
     // Esconder a mensagem após 3 segundos
     setTimeout(() => {
       statusElement.style.display = 'none';
@@ -140,12 +150,12 @@ document.addEventListener('DOMContentLoaded', () => {
       showStatus('Por favor, verifique se os horários estão em ordem cronológica e se os intervalos são válidos.', true);
       return;
     }
-    
+
     if (!validateTangerinoSettings()) {
       showStatus('Por favor, verifique se a URL da API é válida e se todos os campos da integração estão preenchidos corretamente.', true);
       return;
     }
-    
+
     const notificationInterval = document.getElementById('notificationInterval').value;
     if (notificationInterval < 1 || notificationInterval > 60) {
       showStatus('O intervalo de notificações deve estar entre 1 e 60 minutos.', true);
@@ -162,10 +172,10 @@ document.addEventListener('DOMContentLoaded', () => {
       lunchInEnd: document.getElementById('lunchInEnd').value,
       departureStart: document.getElementById('departureStart').value,
       departureEnd: document.getElementById('departureEnd').value,
-      
+
       // Intervalo de notificação
       notificationInterval: parseInt(notificationInterval, 10),
-      
+
       // Configurações da API
       tangerinoEnabled: document.getElementById('tangerinoEnabled').checked,
       tangerinoUrl: document.getElementById('tangerinoUrl').value.trim(),
@@ -176,18 +186,18 @@ document.addEventListener('DOMContentLoaded', () => {
     chrome.storage.local.set(settings, () => {
       const saveButton = document.getElementById('save');
       const originalText = saveButton.textContent;
-      
+
       // Feedback visual no botão
       saveButton.textContent = '✓ Salvo!';
       saveButton.style.backgroundColor = '#28a745';
-      
+
       setTimeout(() => {
         saveButton.textContent = originalText;
         saveButton.style.backgroundColor = '#4285f4';
       }, 2000);
 
       showStatus('Configurações salvas com sucesso!');
-      
+
       // Recriar alarme com novo intervalo
       chrome.runtime.sendMessage({ action: 'updateAlarm', interval: parseInt(notificationInterval, 10) });
     });
@@ -204,4 +214,57 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   });
+
+  function getPeriodName(period) {
+    const names = {
+      arrival: 'Chegada',
+      lunchOut: 'Saída para Almoço',
+      lunchIn: 'Retorno do Almoço',
+      departure: 'Saída'
+    };
+    return names[period];
+  }
+
+  // Função para carregar e exibir os pontos registrados
+  function loadRegisteredPoints() {
+    chrome.storage.local.get(['points'], function (result) {
+      const points = result.points || [];
+      const pointsTableBody = document.getElementById('pointsTable').querySelector('tbody');
+      pointsTableBody.innerHTML = ''; // Limpar tabela antes de adicionar novos pontos
+
+      points.forEach((point, index) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${point.date}</td>
+          <td>${point.time}</td>
+          <td>${getPeriodName(point.period)}</td>
+          <td><button class="delete-button" data-index="${index}">Apagar</button></td>
+        `;
+        pointsTableBody.appendChild(row);
+      });
+
+      // Adicionar evento de clique para os botões de apagar
+      const deleteButtons = document.querySelectorAll('.delete-button');
+      deleteButtons.forEach(button => {
+        button.addEventListener('click', function () {
+          const index = this.getAttribute('data-index');
+          deletePoint(index);
+        });
+      });
+    });
+  }
+
+  // Função para apagar um ponto
+  function deletePoint(index) {
+    chrome.storage.local.get(['points'], function (result) {
+      const points = result.points || [];
+      points.splice(index, 1); // Remove o ponto do array
+      chrome.storage.local.set({ points: points }, function () {
+        loadRegisteredPoints(); // Recarregar a tabela
+      });
+    });
+  }
+
+  // Carregar os pontos registrados ao iniciar
+  loadRegisteredPoints();
 }); 

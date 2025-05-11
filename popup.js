@@ -229,12 +229,72 @@ document.addEventListener('DOMContentLoaded', function() {
       });
   }
   
-  function showNotification(message) {
-    chrome.notifications.create({
+  // Mostrar notificação
+  function showNotification(period) {
+    const messages = {
+      arrival: 'Não se esqueça de registrar sua chegada!',
+      lunchOut: 'Hora do almoço! Não se esqueça de registrar seu ponto de saída.',
+      lunchIn: 'Não se esqueça de registrar seu ponto de retorno do almoço!',
+      departure: 'Não se esqueça de registrar sua saída!'
+    };
+    
+    const notificationId = `point_${period}_${Date.now()}`;
+    
+    chrome.notifications.create(notificationId, {
       type: 'basic',
       iconUrl: 'images/icon128.png',
       title: 'Bateu Ponto',
-      message: message
+      message: messages[period],
+      buttons: [
+        { title: 'Registrar Ponto' },
+        { title: 'Adiar 10 min' }
+      ],
+      requireInteraction: true
+    });
+  }
+  
+  // Registrar ponto
+  function registerPoint(notificationId) {
+    chrome.storage.local.get([`notification_${notificationId}`], function(result) {
+      const period = result[`notification_${notificationId}`];
+      
+      if (period) {
+        const now = new Date();
+        const timeString = now.toLocaleTimeString('pt-BR'); // Salvar em português
+        const dateString = now.toLocaleDateString('pt-BR'); // Salvar em português
+        
+        chrome.storage.local.get(['points', 'tangerinoEnabled', 'tangerinoUrl', 'tangerinoCompanyCode', 'tangerinoPin'], function(result) {
+          const points = result.points || [];
+          
+          // Registrar o ponto apenas se o usuário clicar no botão
+          points.push({
+            date: dateString,
+            time: timeString,
+            timestamp: now.getTime(),
+            period: period
+          });
+          
+          chrome.storage.local.set({ points: points }, function() {
+            // Remover a notificação e o período armazenado
+            chrome.notifications.clear(notificationId);
+            chrome.storage.local.remove([`notification_${notificationId}`]);
+            
+            // Verificar se a integração com Tangerino está ativada
+            if (result.tangerinoEnabled && result.tangerinoCompanyCode && result.tangerinoPin) {
+              registerPointInTangerino(result.tangerinoUrl, result.tangerinoCompanyCode, result.tangerinoPin, function(success) {
+                if (success) {
+                  showConfirmationNotification('Ponto registrado com sucesso no sistema e na API local!');
+                } else {
+                  showConfirmationNotification('Ponto registrado no sistema, mas houve um erro ao registrar na API local.');
+                }
+              });
+            } else {
+              // Mostrar confirmação normal
+              showConfirmationNotification('Ponto registrado com sucesso!');
+            }
+          });
+        });
+      }
     });
   }
 }); 

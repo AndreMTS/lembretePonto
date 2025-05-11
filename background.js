@@ -194,7 +194,6 @@ function registerPoint(notificationId) {
 // Registrar ponto na API local
 function registerPointInTangerino(companyCode, pin, callback) {
   // Primeiro, vamos obter a URL configurada
-  debugger
   chrome.storage.local.get(['tangerinoUrl'], function(result) {
     const url = result.tangerinoUrl || 'http://localhost:9999/v1/registrar-ponto';
     
