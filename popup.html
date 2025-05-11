@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Bateu Ponto</title>
+  <title>Notificador de ponto</title>
   <style>
     body {
       width: 320px;
@@ -14,11 +14,11 @@
     }
     
     .header {
-      background-color: #4285f4;
+      background-color: #155724; /* Alterado de #4285f4 para #155724 */
       color: white;
       padding: 15px;
       text-align: center;
-      border-bottom: 1px solid #3367d6;
+      border-bottom: 1px solid #10441c; /* Tom mais escuro do verde */
     }
     
     .header h2 {
@@ -72,7 +72,7 @@
     
     button {
       padding: 10px 16px;
-      background-color: #4285f4;
+      background-color: #155724;
       color: white;
       border: none;
       border-radius: 4px;
@@ -86,11 +86,11 @@
     }
     
     button:hover {
-      background-color: #3367d6;
+      background-color: #10441c;
     }
     
     button:active {
-      background-color: #2a56c6;
+      background-color: #0b3b16;
     }
     
     .config-link {
@@ -99,14 +99,14 @@
     }
     
     .config-link a {
-      color: #4285f4;
+      color: #155724; /* Alterado de #4285f4 para #155724 */
       text-decoration: none;
       font-size: 14px;
       transition: color 0.3s ease;
     }
     
     .config-link a:hover {
-      color: #3367d6;
+      color: #10441c; /* Tom mais escuro do verde */
       text-decoration: underline;
     }
     
@@ -124,7 +124,7 @@
 </head>
 <body>
   <div class="header">
-    <h2>Bateu Ponto</h2>
+    <h2>Notificador de ponto</h2>
   </div>
   
   <div class="container">
@@ -149,10 +149,13 @@
     
     <div class="action-container">
       <button id="registerPoint">Registrar Ponto</button>
-      <div class="config-link">
-        <a href="#" id="openOptions">Configurar Horários</a>
+      <div style="align-self: center;" class="config-link">
+        <button style="background-color: #1f178f;" href="#" id="openOptions">Configurar Horários</button>
       </div>
     </div>
+    <div style="font-size: x-small;color: #6c757d;text-align: center;">
+      Notificador de ponto© 2025 <br> Desenvolvido por <a href="https://github.com/AndreMTS" target="_blank">[AndreMTS]</a>
+  </div>
   </div>
   <script src="popup.js"></script>
 </body>

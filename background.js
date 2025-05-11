@@ -31,6 +31,28 @@ chrome.alarms.onAlarm.addListener(function(alarm) {
 chrome.notifications.onButtonClicked.addListener(function(notificationId, buttonIndex) {
   if (buttonIndex === 0) { // Botão "Registrar Ponto"
     registerPoint(notificationId);
+  } else if (buttonIndex === 1) { // Botão "Adiar 10 min"
+    // Adiar a notificação
+    chrome.storage.local.get(['notificationInterval'], function(result) {
+      const currentInterval = result.notificationInterval || 5; // Pega o intervalo atual
+      const newInterval = currentInterval + 5; // Adiciona 5 minutos
+
+      // Atualiza o intervalo no localStorage
+      chrome.storage.local.set({ notificationInterval: newInterval }, function() {
+        console.log(`Intervalo de notificação atualizado para ${newInterval} minutos.`);
+        
+        // Recria o alarme com o novo intervalo
+        createAlarm(newInterval);
+      });
+
+      // Remover a notificação atual
+      chrome.notifications.clear(notificationId);
+
+      // Reprogramar a notificação para o novo intervalo
+      setTimeout(() => {
+        checkTimeRanges(); // Chama a função que verifica os horários e mostra a notificação novamente
+      }, newInterval * 60 * 1000); // Converte minutos para milissegundos
+    });
   }
 });
 
@@ -116,7 +138,8 @@ function showNotification(period) {
     title: 'Bateu Ponto',
     message: messages[period],
     buttons: [
-      { title: 'Registrar Ponto' }
+      { title: 'Registrar Ponto' },
+      { title: 'Adiar 10 min' }
     ],
     requireInteraction: true
   });
